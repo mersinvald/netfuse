@@ -81,7 +81,7 @@ impl InodeStore {
             None => self.len() as u64 + 1,
         };
 
-        println!("insert metadata: {} {}", ino, path.as_ref().display());
+        debug!("insert metadata: {} {}", ino, path.as_ref().display());
 
         let attr = FileAttr {
             ino: ino,
@@ -163,13 +163,13 @@ impl InodeStore {
         let sequence = path_to_sequence(&inode.path);
 
         if let Some(old_inode) = self.inode_map.insert(ino, inode) {
+            // TODO find out if inode reuse causes panic here
             if old_inode.path != path {
                 panic!("Corrupted inode store: reinserted conflicting ino {} (path={}, oldpath={})",
                         ino, path.display(), old_inode.path.display());
             } else {
-                println!("Updating ino {} at path {}", ino, path.display());
+                debug!("Updating ino {} at path {}", ino, path.display());
             }
-
         }
 
         if !self.ino_trie.insert(&sequence, ino) {
